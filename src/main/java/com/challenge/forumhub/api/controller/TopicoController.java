@@ -11,6 +11,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.util.List;
+import java.util.Optional;
+
 @RestController
 @RequestMapping("/topicos")
 public class TopicoController {
@@ -29,9 +32,22 @@ public class TopicoController {
         return ResponseEntity.created(uri).body(new DadosDetalhamentoTopico(topico));
     }
 
-    @GetMapping("/teste")
-    public String teste() {
-        System.out.println("Endpoint /teste foi chamado!");
-        return "ok";
+    @GetMapping
+    public List<DadosDetalhamentoTopico> listar() {
+        return repository.findAll().stream()
+                .map(DadosDetalhamentoTopico::new)
+                .toList();
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<DadosDetalhamentoTopico> detalhar(@PathVariable Long id) {
+        Optional<Topico> topicoOptional = repository.findById(id);
+
+        if (topicoOptional.isPresent()) {
+            var dto = new DadosDetalhamentoTopico(topicoOptional.get());
+            return ResponseEntity.ok(dto);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 }
