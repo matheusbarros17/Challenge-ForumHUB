@@ -1,5 +1,6 @@
 package com.challenge.forumhub.api.controller;
 
+import com.challenge.forumhub.api.model.DadosAtualizacaoTopico;
 import com.challenge.forumhub.api.model.DadosDetalhamentoTopico;
 import com.challenge.forumhub.api.model.DadosTopico;
 import com.challenge.forumhub.api.model.Topico;
@@ -49,5 +50,39 @@ public class TopicoController {
         } else {
             return ResponseEntity.notFound().build();
         }
+    }
+
+    @PutMapping("/{id}")
+    @Transactional
+    public ResponseEntity atualizar(@PathVariable Long id, @RequestBody @Valid DadosAtualizacaoTopico dados) {
+        Optional<Topico> topicoOptional = repository.findById(id);
+
+        if (!topicoOptional.isPresent()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        var topico = topicoOptional.get();
+
+        topico.setTitulo(dados.titulo());
+        topico.setMensagem(dados.mensagem());
+        topico.setAutor(dados.autor());
+        topico.setCurso(dados.curso());
+
+        repository.save(topico);
+
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/{id}")
+    @Transactional
+    public ResponseEntity excluir(@PathVariable Long id) {
+        Optional<Topico> topicoOptional = repository.findById(id);
+
+        if (!topicoOptional.isPresent()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        repository.deleteById(id);
+        return ResponseEntity.noContent().build();
     }
 }
